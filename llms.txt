@@ -1,0 +1,3 @@
+# llms.txt AI Usage Policy
+# Domain: www.atzyalafouzou.com
+# Purpose: Specify which pages are allowed for LLM crawling, summarization, or retrieval
