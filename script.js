@@ -336,3 +336,23 @@ const btn = document.getElementById('see-more-btn');
     hiddenItems.forEach(item => item.style.display = 'block');
     btn.style.display = 'none'; // κρύβουμε το κουμπί μετά
   });
+  
+  // FAQ Accordion
+document.querySelectorAll('.faq-question').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+
+    // Κλείνει όλα
+    document.querySelectorAll('.faq-item').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+    });
+
+    // Αν δεν ήταν ανοιχτό, ανοίγει
+    if (!isOpen) {
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  });
+});

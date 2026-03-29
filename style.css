@@ -1,4 +1,4 @@
-/* ---------- Page Fade In ---------- */
+/* Page Fade In */
 body {
 	opacity: 0;
 	transition: opacity 0.8s ease-in-out;
@@ -26,7 +26,7 @@ body.loaded {
 	transform: translateY(0);
 }
 
-/* ---------------- Reset & Base ---------------- */
+/* Reset & Base */
 * {
 	margin: 0;
 	padding: 0;
@@ -107,7 +107,7 @@ section {
 	scroll-margin-top: 30px;
 }
 
-/* ---------------- Navbar ---------------- */
+/* Navbar */
 .logo img {
 	width: 250px;
 }
@@ -303,7 +303,7 @@ footer {
 	}
 }
 
-/* ---------------- Hero ---------------- */
+/* Hero */
 #hero {
 	height: 100vh;
 	display: flex;
@@ -360,7 +360,7 @@ form button {
 	font-size: 0.85rem;
 }
 
-/* ---------------- What Makes Atzi Unique ---------------- */
+/* What Makes Atzi Unique */
 #about {
 	background: #181d25;
 	text-align: center;
@@ -461,7 +461,7 @@ form button {
 }
 
 
-/* ---------------- Bio Section ---------------- */
+/* Bio Section */
 #bio {
 	width: 100%;
 	/*background: #11141a; */
@@ -552,7 +552,7 @@ form button {
 	;
 }
 
-/* ---------------- Slider ---------------- */
+/* Slider */
 #hair-styles .container {
 	max-width: 1400px;
 	margin: 0 auto;
@@ -625,7 +625,7 @@ form button {
 }
 
 
-/* ---------------- Full width logo slider ---------------- */
+/* Full width logo slider */
 #style-logos {
 	width: 100%;
 	background: #c6ac73;
@@ -727,7 +727,7 @@ form button {
 }
 
 
-/* ---------------- Gallery ---------------- */
+/* Gallery */
 #gallery {
 	background: #11141a;
 	text-align: center;
@@ -814,7 +814,7 @@ form button {
 	border-radius: 10px;
 }
 
-/* ---------------- Social ---------------- */
+/* Social */
 #social {
 	text-align: center;
 	background: #11141a;
@@ -940,7 +940,136 @@ button.review-dot-active {
   font-size: 1.2rem;
 }
 
-/* ---------------- Contact ---------------- */
+/* FAQ */
+#faq {
+   background: 
+    radial-gradient(ellipse at 80% 50%, rgba(198, 172, 115, 0.08) 0%, transparent 65%),
+    #181d25;
+  text-align: center;
+}
+
+.faq-subtitle {
+  color: #dadada;
+  margin: 0 auto 50px;
+  font-size: 1rem;
+  opacity: 0.75;
+}
+
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-list {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(198, 172, 115, 0.2);
+}
+
+.faq-item:first-child {
+  border-top: 1px solid rgba(198, 172, 115, 0.2);
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 0;
+  cursor: pointer;
+  color: #dadada;
+  font-family: 'Philosopher', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  gap: 20px;
+  transition: color 0.3s ease;
+}
+
+.faq-question:hover {
+  color: #c6ac73;
+}
+
+.faq-question[aria-expanded="true"] {
+  color: #c6ac73;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid #c6ac73;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.4s ease, background 0.3s ease;
+}
+
+.faq-icon::before,
+.faq-icon::after {
+  content: '';
+  position: absolute;
+  background: #c6ac73;
+  border-radius: 2px;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+/* horizontal bar */
+.faq-icon::before {
+  width: 10px;
+  height: 1.5px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* vertical bar */
+.faq-icon::after {
+  width: 1.5px;
+  height: 10px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.faq-question[aria-expanded="true"] .faq-icon {
+  background: #c6ac73;
+}
+
+.faq-question[aria-expanded="true"] .faq-icon::before,
+.faq-question[aria-expanded="true"] .faq-icon::after {
+  background: #11141a;
+}
+
+.faq-question[aria-expanded="true"] .faq-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+  opacity: 0;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s ease, padding 0.3s ease;
+}
+
+.faq-answer p {
+  padding-bottom: 22px;
+  color: #dadada;
+  opacity: 0.8;
+  font-size: 0.97rem;
+  line-height: 1.9;
+  max-width: 100%;
+  margin: 0;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 500px;
+}
+
+/* Contact */
 #contact {
 	text-align: center;
 	background:#11141a;
