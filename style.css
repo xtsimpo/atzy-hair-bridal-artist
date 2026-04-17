@@ -1274,6 +1274,11 @@ footer {
 		box-shadow: 0 8px 20px rgba(214, 191, 163, 0.4);
 }
 
+.review-slide p {
+    font-size: 1.0rem;
+	}
+}
+
 /* ---------------- Loading ---------------- */
 #loader {
 	position: fixed;
@@ -1304,5 +1309,5 @@ footer {
 
 	100% {
 		transform: rotate(360deg);
+		}
 	}
-}
