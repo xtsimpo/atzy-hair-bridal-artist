@@ -885,10 +885,11 @@ form button {
 }
 
 .review-slide p {
-  font-size: 2rem;
+  font-size: 1.3rem;
   line-height: 1.6;
   margin-bottom: 15px;
   color: #c6ac73;
+  max-width: 700px;
 }
 
 .review-slide h4 {
