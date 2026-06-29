@@ -1,3 +1,13 @@
-# llms.txt AI Usage Policy
-# Domain: www.atzyalafouzou.com
-# Purpose: Specify which pages are allowed for LLM crawling, summarization, or retrieval
+# Atzy Alafouzou
+
+> Luxury bridal hairstyles by Atzy. Bespoke, elegant, and modern designs crafted to reflect each bride’s personality and style.
+
+## Pages
+
+- [Luxury bridal hairstyles by Atzy. Bespoke, elegant, and modern designs crafted to reflect each bride’s personality and style.](https://atzyalafouzou.com/)
+
+## About
+
+- Author: Atzy Alafouzou
+- Website: https://atzyalafouzou.com/
+- Contact: aggelikialafouzou@gmail.com
