@@ -1,358 +1,213 @@
-// Page Fade In
-window.addEventListener("load", () => {
-	document.body.classList.add("loaded");
-});
+(() => {
+  const root = document.documentElement;
+  root.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
+  const hasGsap = !!(window.gsap && window.ScrollTrigger);
+  if (hasGsap) gsap.registerPlugin(ScrollTrigger);
 
-// Loading
-window.addEventListener('load', () => {
-  const loader = document.getElementById('loader');
-  loader.style.opacity = '0';
-  loader.style.transition = 'opacity 0.5s ease';
-  setTimeout(() => {
-    loader.style.display = 'none';
-  }, 500);
-});
+  /* smooth scroll */
+  let lenis = null;
+  if (!reduce && window.Lenis) {
+    lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    if (hasGsap) { lenis.on('scroll', ScrollTrigger.update); gsap.ticker.add(t => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0); }
+    else { const raf = t => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
+  }
+  const goTo = target => { const el = document.querySelector(target); if (!el) return; lenis ? lenis.scrollTo(el, { offset: 0, duration: 1.6 }) : el.scrollIntoView({ behavior: 'smooth' }); };
 
-// Navbar Scroll
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-	window.scrollY > 50 ? navbar.classList.add('scrolled') : navbar.classList.remove('scrolled');
-});
+  /* loader */
+  const start = () => {
+    document.getElementById('loader').classList.add('done');
+    setTimeout(() => document.body.classList.add('ready'), 250);
+  };
+  if (document.readyState === 'complete') setTimeout(start, 900); else addEventListener('load', () => setTimeout(start, 700));
+  setTimeout(start, 3500);
 
-// Navbar
-const nav = document.getElementById('mainNav');
+  /* anchors + mobile menu */
+  const header = document.getElementById('top');
+  const burger = document.getElementById('burger');
+  const setMenu = open => { document.body.classList.toggle('menu-open', open); burger.setAttribute('aria-expanded', open); burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); open ? lenis?.stop() : lenis?.start(); };
+  burger.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const id = a.getAttribute('href'); if (id.length < 2) return;
+    e.preventDefault(); setMenu(false); goTo(id);
+  }));
 
-window.addEventListener('scroll', () => {
-	if (window.scrollY > 50) {
-		nav.classList.add('scrolled');
-	} else {
-		nav.classList.remove('scrolled');
-	}
-});
+  /* header hide/show + progress */
+  const bar = document.getElementById('progress');
+  let lastY = 0;
+  const onScroll = () => {
+    const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
+    header.classList.toggle('solid', y > 40);
+    header.classList.toggle('hide', y > 400 && y > lastY && !document.body.classList.contains('menu-open'));
+    lastY = y;
+  };
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-// Scroll Reveal
-const features = document.querySelectorAll('.feature-card');
-const reveal = () => {
-	features.forEach(f => {
-		const top = f.getBoundingClientRect().top;
-		if (top < window.innerHeight - 100) {
-			f.classList.add('show');
-		}
-	});
-};
-window.addEventListener('scroll', reveal);
-reveal();
+  /* reveal on scroll */
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+  document.querySelectorAll('.rv,.rv-img').forEach(el => io.observe(el));
 
-// Lightbox
-const galleryImages = document.querySelectorAll('.gallery-grid img');
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-galleryImages.forEach(img => {
-	img.addEventListener('click', () => {
-		lightbox.style.display = 'flex';
-		lightboxImg.src = img.src;
-	});
-});
+  /* scroll-lit statement */
+  const lit = document.getElementById('lit');
+  lit.innerHTML = lit.textContent.trim().split(/\s+/).map(w => {
+    const g = w.startsWith('*'); w = w.replace(/\*/g, '');
+    return `<span class="w${g ? ' gold' : ''}">${w}</span>`;
+  }).join(' ');
+  const words = [...lit.querySelectorAll('.w')];
+  if (hasGsap && !reduce) {
+    ScrollTrigger.create({ trigger: lit, start: 'top 80%', end: 'bottom 45%', scrub: true,
+      onUpdate: s => { const n = s.progress * words.length; words.forEach((w, i) => w.style.opacity = Math.max(.16, Math.min(1, n - i + .2))); } });
+  } else words.forEach(w => w.style.opacity = 1);
 
-// Contact Form
-const form = document.getElementById("contactForm");
-
-form.addEventListener("submit", function(e) {
-	e.preventDefault();
-
-	const name = form.name.value;
-	const email = form.email.value;
-	const message = form.message.value;
-
-	const subject = encodeURIComponent(`New message from ${name}`);
-	const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-
-	// Ανοίγει ο email client
-	window.location.href = `mailto:aggelikialafouzou@gmail.com?subject=${subject}&body=${body}`;
-
-	// Optional: success message
-	const successMsg = document.getElementById("success");
-	successMsg.style.display = 'block';
-	form.reset();
-	setTimeout(() => {
-		successMsg.style.display = 'none';
-	}, 4000);
-});
-
-
-//const form=document.getElementById('contactForm');
-//const successMsg=document.getElementById('success');
-//form.addEventListener('submit',e=>{
-//  e.preventDefault();
-//  successMsg.style.display='block';
-//  form.reset();
-//  setTimeout(()=>{successMsg.style.display='none';},4000);
-//});
-
-// Burger menu
-const burger = document.querySelector(".burger");
-const navLinks = document.querySelector(".nav-links");
-
-// Toggle menu burger
-burger.addEventListener("click", () => {
-	navLinks.classList.toggle("active");
-	burger.classList.toggle("active");
-});
-
-// Close burger menu after click
-navLinks.querySelectorAll("a, button").forEach(link => {
-	link.addEventListener("click", () => {
-		navLinks.classList.remove("active");
-		burger.classList.remove("active");
-	});
-});
-
-
-// Reveal
-const reveals = document.querySelectorAll(".reveal");
-
-function revealSections() {
-	reveals.forEach(section => {
-		const windowHeight = window.innerHeight;
-		const elementTop = section.getBoundingClientRect().top;
-
-		if (elementTop < windowHeight - 100) {
-			section.classList.add("active");
-		}
-	});
-}
-
-window.addEventListener("scroll", revealSections);
-revealSections();
-
-
-// Slider
-const slider = document.querySelector(".slider");
-const slides = document.querySelectorAll(".slide");
-const prevBtn = document.querySelector(".prev");
-const nextBtn = document.querySelector(".next");
-
-let index = 0;
-const total = slides.length;
-const visibleSlides = 3;
-
-function updateSlider() {
-	const slideWidth = slides[0].offsetWidth + 20; // include gap
-	slider.style.transform = `translateX(-${index * slideWidth}px)`;
-}
-
-// Next slide
-nextBtn.addEventListener("click", () => {
-	index++;
-	if (index > total - visibleSlides) index = 0;
-	updateSlider();
-});
-
-// Prev Slide
-prevBtn.addEventListener("click", () => {
-	index--;
-	if (index < 0) index = total - visibleSlides;
-	updateSlider();
-});
-
-// Optional: Auto slide every 5s
-setInterval(() => {
-	index++;
-	if (index > total - visibleSlides) index = 0;
-	updateSlider();
-}, 5000);
-
-// Initial
-updateSlider();
-
-// Responsive: adjust slideWidth on resize
-window.addEventListener("resize", updateSlider);
-
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
-
-slider.addEventListener("touchstart", (e) => {
-	startX = e.touches[0].clientX;
-	isDragging = true;
-});
-
-slider.addEventListener("touchmove", (e) => {
-	if (!isDragging) return;
-	currentX = e.touches[0].clientX;
-});
-
-slider.addEventListener("touchend", () => {
-	if (!isDragging) return;
-	const diff = startX - currentX;
-
-	// Swipe threshold
-	if (diff > 50) {
-		// Swipe left → next
-		index++;
-		if (index > total - visibleSlides) index = 0;
-	} else if (diff < -50) {
-		// Swipe right → prev
-		index--;
-		if (index < 0) index = total - visibleSlides;
-	}
-
-	updateSlider();
-	isDragging = false;
-	startX = 0;
-	currentX = 0;
-});
-
-const logoSlider = document.querySelector(".logo-slider");
-
-let startXLogo = 0;
-let currentXLogo = 0;
-let isDraggingLogo = false;
-
-logoSlider.addEventListener("touchstart", (e) => {
-	startXLogo = e.touches[0].clientX;
-	isDraggingLogo = true;
-});
-
-logoSlider.addEventListener("touchmove", (e) => {
-	if (!isDraggingLogo) return;
-	currentXLogo = e.touches[0].clientX;
-});
-
-logoSlider.addEventListener("touchend", () => {
-	if (!isDraggingLogo) return;
-	const diff = startXLogo - currentXLogo;
-
-	const slideWidth = document.querySelector(".logo-box").offsetWidth + 20; // include gap
-	let sliderTransform = getComputedStyle(logoSlider).transform.match(/matrix.*\((.+)\)/);
-	let currentTranslate = sliderTransform ? parseFloat(sliderTransform[1].split(', ')[4]) : 0;
-
-	if (diff > 30) {
-		// swipe left
-		logoSlider.style.transform = `translateX(${currentTranslate - slideWidth}px)`;
-	} else if (diff < -30) {
-		// swipe right
-		logoSlider.style.transform = `translateX(${currentTranslate + slideWidth}px)`;
-	}
-
-	isDraggingLogo = false;
-	startXLogo = 0;
-	currentXLogo = 0;
-});
-
-const circles = document.querySelectorAll(".circle");
-
-circles.forEach(circle => {
-	const percent = circle.dataset.percent;
-	const radius = circle.offsetWidth / 2;
-	const circumference = 2 * Math.PI * radius;
-
-	// Create SVG inside circle
-	const svgNS = "http://www.w3.org/2000/svg";
-	const svg = document.createElementNS(svgNS, "svg");
-	svg.setAttribute("width", "100%");
-	svg.setAttribute("height", "100%");
-	svg.setAttribute("viewBox", `0 0 ${circle.offsetWidth} ${circle.offsetHeight}`);
-
-	const circleBg = document.createElementNS(svgNS, "circle");
-	circleBg.setAttribute("cx", radius);
-	circleBg.setAttribute("cy", radius);
-	circleBg.setAttribute("r", radius - 5);
-	circleBg.setAttribute("stroke", "#eee");
-	circleBg.setAttribute("stroke-width", 5);
-	circleBg.setAttribute("fill", "none");
-
-	const circleFg = document.createElementNS(svgNS, "circle");
-	circleFg.setAttribute("cx", radius);
-	circleFg.setAttribute("cy", radius);
-	circleFg.setAttribute("r", radius - 5);
-	circleFg.setAttribute("stroke", "#c6ac73");
-	circleFg.setAttribute("stroke-width", 5);
-	circleFg.setAttribute("fill", "none");
-	circleFg.setAttribute("stroke-dasharray", 2 * Math.PI * (radius - 5));
-	circleFg.setAttribute("stroke-dashoffset", 2 * Math.PI * (radius - 5));
-	circleFg.setAttribute("transform", `rotate(-90 ${radius} ${radius})`);
-	circleFg.style.transition = "stroke-dashoffset 1s ease";
-
-	svg.appendChild(circleBg);
-	svg.appendChild(circleFg);
-	circle.appendChild(svg);
-
-	// Animate
-	setTimeout(() => {
-		circleFg.style.strokeDashoffset = 2 * Math.PI * (radius - 5) * (1 - percent / 100);
-	}, 1500);
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  const sliderContainer = document.querySelector('.reviews-section');
-  const slider = sliderContainer.querySelector('.reviews-slider');
-  const slides = slider.querySelectorAll('.review-slide');
-  const dotsContainer = sliderContainer.querySelector('.reviews-dots');
-  let currentIndex = 0;
-  const createdDots = []; // κρατάμε τα dots σε array
-
-  // Create dots
-  slides.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.type = "button";
-    if (i === 0) dot.classList.add('review-dot-active');
-    dot.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToSlide(i);
+  /* parallax */
+  if (hasGsap && !reduce) {
+    document.querySelectorAll('[data-speed]').forEach(el => {
+      const s = parseFloat(el.dataset.speed);
+      gsap.fromTo(el, { yPercent: s * -60 }, { yPercent: s * 60, ease: 'none', scrollTrigger: { trigger: el.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true } });
     });
-    dotsContainer.appendChild(dot);
-    createdDots.push(dot); // προσθήκη στο array
-  });
-
-  function scrollToSlide(index) {
-    // scroll μόνο μέσα στο slider, όχι η σελίδα
-    slider.scrollTo({
-      left: slides[index].offsetLeft - slider.offsetLeft,
-      behavior: 'smooth'
-    });
-    updateDots(index);
   }
 
-  function updateDots(index) {
-    createdDots.forEach(dot => dot.classList.remove('review-dot-active'));
-    if (createdDots[index]) {
-      createdDots[index].classList.add('review-dot-active');
-    }
-    currentIndex = index;
+  /* horizontal collection */
+  const track = document.getElementById('track');
+  const count = document.getElementById('colCount');
+  const styles = [...track.querySelectorAll('.style')];
+  const setCount = p => { const i = Math.min(styles.length - 1, Math.round(p * (styles.length - 1))); count.textContent = `${String(i + 1).padStart(2, '0')} / ${String(styles.length).padStart(2, '0')}`; };
+  if (hasGsap && !reduce) {
+    ScrollTrigger.matchMedia({
+      '(min-width: 901px)': () => {
+        const dist = () => track.scrollWidth - innerWidth;
+        const tw = gsap.to(track, { x: () => -dist(), ease: 'none',
+          scrollTrigger: { trigger: '#collection', pin: '.col-pin', start: 'top top', end: () => '+=' + dist(), scrub: 1, invalidateOnRefresh: true, onUpdate: s => setCount(s.progress) } });
+        styles.forEach(st => gsap.fromTo(st.querySelector('img'), { xPercent: -8 }, { xPercent: 8, ease: 'none', scrollTrigger: { trigger: st, containerAnimation: tw, start: 'left right', end: 'right left', scrub: true } }));
+        return () => gsap.set(track, { x: 0 });
+      }
+    });
+  }
+  track.addEventListener('scroll', () => setCount(track.scrollLeft / Math.max(1, track.scrollWidth - track.clientWidth)), { passive: true });
+
+  /* velocity marquee */
+  const mq = document.getElementById('mq');
+  let mx = 0, vel = 0, lastS = scrollY;
+  const loop = () => {
+    const s = scrollY; vel += ((s - lastS) * .12 - vel) * .1; lastS = s;
+    if (!reduce) { mx -= .6 + Math.abs(vel) * 1.2; const half = mq.scrollWidth / 2; if (-mx >= half) mx += half; mq.style.transform = `translate3d(${mx}px,0,0) skewX(${Math.max(-8, Math.min(8, -vel * .6))}deg)`; }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+
+  /* card spotlight + tilt */
+  document.querySelectorAll('.card').forEach(c => {
+    c.addEventListener('pointermove', e => {
+      const r = c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      c.style.setProperty('--mx', x + 'px'); c.style.setProperty('--my', y + 'px');
+      if (fine && !reduce) c.style.transform = `rotateX(${(y / r.height - .5) * -7}deg) rotateY(${(x / r.width - .5) * 7}deg) translateY(-6px)`;
+    });
+    c.addEventListener('pointerleave', () => c.style.transform = '');
+  });
+
+  /* magnetic buttons */
+  if (fine && !reduce) document.querySelectorAll('[data-magnetic]').forEach(b => {
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .25}px,${(e.clientY - r.top - r.height / 2) * .35}px)`; });
+    b.addEventListener('pointerleave', () => b.style.transform = '');
+  });
+
+  /* cursor */
+  const cur = document.getElementById('cursor');
+  if (fine && !reduce) {
+    let tx = -100, ty = -100, cx = -100, cy = -100;
+    addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; cur.classList.add('on'); }, { passive: true });
+    document.addEventListener('pointerleave', () => cur.classList.remove('on'));
+    addEventListener('pointerdown', () => cur.classList.add('press')); addEventListener('pointerup', () => cur.classList.remove('press'));
+    const tick = () => { cx += (tx - cx) * .18; cy += (ty - cy) * .18; cur.style.transform = `translate3d(${cx}px,${cy}px,0)`; requestAnimationFrame(tick); };
+    tick();
+    document.querySelectorAll('[data-cursor]').forEach(el => {
+      el.addEventListener('pointerenter', () => { cur.querySelector('b').textContent = el.dataset.cursor; cur.classList.add('big'); });
+      el.addEventListener('pointerleave', () => cur.classList.remove('big'));
+    });
   }
 
-  // Update dots on manual scroll
-  slider.addEventListener('scroll', () => {
-    const index = Math.round(slider.scrollLeft / slides[0].offsetWidth);
-    updateDots(index);
+  /* lightbox */
+  const shots = [...document.querySelectorAll('.shot img')];
+  const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCount = document.getElementById('lbCount');
+  let li = 0;
+  const show = i => {
+    li = (i + shots.length) % shots.length; lbImg.classList.remove('show');
+    setTimeout(() => { lbImg.src = shots[li].src; lbImg.alt = shots[li].alt; lbCount.textContent = `${li + 1} / ${shots.length}`; requestAnimationFrame(() => lbImg.classList.add('show')); }, lb.classList.contains('open') ? 250 : 0);
+  };
+  const openLb = i => { lb.classList.add('open'); show(i); lenis?.stop(); cur.classList.remove('big'); document.getElementById('lbClose').focus(); };
+  const closeLb = () => { lb.classList.remove('open'); lbImg.classList.remove('show'); lenis?.start(); };
+  shots.forEach((im, i) => { im.parentElement.tabIndex = 0; im.parentElement.addEventListener('click', () => openLb(i)); im.parentElement.addEventListener('keydown', e => { if (e.key === 'Enter') openLb(i); }); });
+  document.getElementById('lbPrev').onclick = e => { e.stopPropagation(); show(li - 1); };
+  document.getElementById('lbNext').onclick = e => { e.stopPropagation(); show(li + 1); };
+  document.getElementById('lbClose').onclick = closeLb;
+  lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeLb(); setMenu(false); }
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') show(li - 1); if (e.key === 'ArrowRight') show(li + 1);
   });
-});
 
-const btn = document.getElementById('see-more-btn');
-  const hiddenItems = document.querySelectorAll('.gallery-grid .gallery-item:nth-child(n+4)');
+  /* stories */
+  const quotes = [...document.querySelectorAll('.quote')];
+  quotes.forEach(q => { const bq = q.querySelector('blockquote'); bq.innerHTML = bq.textContent.split(' ').map((w, i) => `<span class="wl"><span style="transition-delay:${i * 18}ms">${w}</span></span>`).join(' '); });
+  const bars = document.getElementById('qBars'), qWrap = document.getElementById('quotes').parentElement;
+  quotes.forEach((_, i) => { const b = document.createElement('button'); b.setAttribute('aria-label', `Story ${i + 1}`); b.innerHTML = '<i></i>'; b.onclick = () => go(i); bars.appendChild(b); });
+  let qi = 0;
+  const go = i => {
+    qi = (i + quotes.length) % quotes.length;
+    quotes.forEach((q, k) => q.classList.toggle('on', k === qi));
+    [...bars.children].forEach((b, k) => { b.classList.toggle('done', k < qi); b.classList.remove('on'); void b.offsetWidth; if (k === qi) b.classList.add('on'); });
+  };
+  bars.addEventListener('animationend', () => go(qi + 1));
+  document.getElementById('qPrev').onclick = () => go(qi - 1);
+  document.getElementById('qNext').onclick = () => go(qi + 1);
+  qWrap.addEventListener('pointerenter', () => qWrap.parentElement.classList.add('q-paused'));
+  qWrap.addEventListener('pointerleave', () => qWrap.parentElement.classList.remove('q-paused'));
+  go(0);
 
-  btn.addEventListener('click', () => {
-    hiddenItems.forEach(item => item.style.display = 'block');
-    btn.style.display = 'none'; // κρύβουμε το κουμπί μετά
+  /* faq */
+  document.querySelectorAll('.qa button').forEach(b => b.addEventListener('click', () => {
+    const qa = b.parentElement, open = !qa.classList.contains('open');
+    document.querySelectorAll('.qa.open').forEach(o => { o.classList.remove('open'); o.querySelector('button').setAttribute('aria-expanded', 'false'); });
+    qa.classList.toggle('open', open); b.setAttribute('aria-expanded', open);
+    setTimeout(() => hasGsap && ScrollTrigger.refresh(), 750);
+  }));
+
+  /* form */
+  const form = document.getElementById('form'), sent = document.getElementById('sent');
+  const W3F_KEY = '8927f399-8132-4907-845a-a6060a6a1916';
+  const sendBtn = form.querySelector('button[type=submit]');
+  const say = t => { sent.textContent = t; sent.classList.add('on'); };
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const missing = [...form.querySelectorAll('[required]')].find(f => !f.value.trim() || (f.type === 'email' && !/^\S+@\S+\.\S+$/.test(f.value)));
+    if (missing) { say(missing.type === 'email' ? 'Please add a valid email address.' : 'Please fill in your name, email and message.'); missing.focus(); return; }
+    const d = Object.fromEntries(new FormData(form));
+    if (d.botcheck) return;
+    sendBtn.disabled = true; say('Sending…');
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: W3F_KEY,
+          subject: `New message from ${d.name}`,
+          from_name: 'atzyalafouzou.com',
+          name: d.name, email: d.email, replyto: d.email,
+          'Wedding date & place': d.date || '-',
+          message: d.message
+        })
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || out.success === false) throw new Error(out.message || res.status);
+      form.reset();
+      say('Thank you, your message has been sent. Atzy will reply by email soon.');
+    } catch (err) {
+      say('The message could not be sent. Please try again, or email aggelikialafouzou@gmail.com directly.');
+    } finally { sendBtn.disabled = false; }
   });
-  
-  // FAQ Accordion
-document.querySelectorAll('.faq-question').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const item = btn.closest('.faq-item');
-    const isOpen = item.classList.contains('open');
 
-    // Κλείνει όλα
-    document.querySelectorAll('.faq-item').forEach(i => {
-      i.classList.remove('open');
-      i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
-    });
-
-    // Αν δεν ήταν ανοιχτό, ανοίγει
-    if (!isOpen) {
-      item.classList.add('open');
-      btn.setAttribute('aria-expanded', 'true');
-    }
-  });
-});
+  addEventListener('load', () => hasGsap && ScrollTrigger.refresh());
+})();
