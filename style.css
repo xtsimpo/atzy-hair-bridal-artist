@@ -343,7 +343,9 @@ footer{background:var(--ink);padding-block:70px calc(36px + env(safe-area-inset-
 .foot-row{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:40px;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mist)}
 .foot-row a:hover{color:var(--gold)}
 .foot-links{display:flex;gap:28px;flex-wrap:wrap}
-.foot-left{display:flex;align-items:baseline;gap:6px 18px;flex-wrap:wrap}
+.foot-left{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap}
+.credit-sep{opacity:.4}
+@media (max-width:620px){.credit-sep{display:none}}
 .credit{font-size:.62rem;letter-spacing:.2em;text-transform:none;opacity:.5;transition:opacity .4s,color .4s}
 .foot-row a.credit:hover{opacity:1;color:var(--gold)}
 
